@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+extern int multiply(int, int);
+
 int main(int argc, char ** argv) {
-    printf("%s\n", "Hello world!");
+    printf("2 * 3 = %d\n", multiply(2, 3));
 }

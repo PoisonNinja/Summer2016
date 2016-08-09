@@ -1,7 +1,10 @@
 CFLAGS += -Wall -Wextra -std=gnu11
 
-test: test.c
-	$(CC) $(CFLAGS) $< -o $@
+test: test.c libfunc.so
+	$(CC) $(CFLAGS) $< -o $@ -L./ -lfunc
+
+libfunc.so: func.c
+	$(CC) $(CFLAGS) -c -fPIC $< -o $@
 
 clean:
-	$(RM) test
+	$(RM) test libfunc.so
