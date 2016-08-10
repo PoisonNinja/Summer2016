@@ -37,7 +37,7 @@ adds 0x1b08 to eax. This makes EAX point to somwhere in the GOT (global offset t
 
 This line subtracts 0x18 from eax, which is the address of the GOT entry for our global variable, "base".
 
-```
+```nasm
 503:	8b 10                	mov    (%eax),%edx
 ```
 
