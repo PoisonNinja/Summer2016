@@ -84,7 +84,7 @@ x86_64 is a little different from x86. We will be using the same source code as 
 ## PIC
 Once again, we start in myfunc. We can skip the first four instructions, which are just the function prologue. We start at 0x69a.
 
-```
+```nasm
 69a:	48 8b 05 2f 09 20 00 	mov    0x20092f(%rip),%rax        # 200fd0 <_DYNAMIC+0x190>
 ```
 
@@ -92,7 +92,7 @@ Here is the instruction that does what took x86 several instructions to do: it a
 
 0x69a adds 0x20092f to RIP, which as we know from before, brings us somewhere into the .got section. However, as the next instruction indicates, we are already in the correct got entry, since we do not need to subtract or add another offset.
 
-```
+```nasm
 6a1:	8b 10                	mov    (%rax),%edx
 ```
 
