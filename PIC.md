@@ -48,13 +48,13 @@ After this, it finishes the rest of the function, but we are only interested in 
 ## Checking
 We can see what's going on by doing some math. We can start at 0x4f3 as before.
 
-That returns 0x4f8, the next instruction, and puts it into eax. Then we add 0x1b08 to 0x4f8, which equals 0x2000. This should place us somewhere in the GOT. If we run readelf on it, we get:
+That returns 0x4f8, the next instruction, and puts it into eax. Then we add 0x1b08 to 0x4f8, which equals 0x2000. This should place us somewhere in the GOT. If we run readelf with the -S argument on it, we get:
 ```
  [10] .plt.got          PROGBITS        000003b0 0003b0 000010 00  AX  0   0  8
  [19] .got              PROGBITS        00001fe8 000fe8 000018 04  WA  0   0  4
  [20] .got.plt          PROGBITS        00002000 001000 00000c 04  WA  0   0  4
 ```
-As you can see, 0x2000 is the end of the GOT section, and the start of the .got.plt section. However, we aren't done yet. The next instruction subtracts 0x18 from 0x2000, which gives us 0x1fe8, the start of the .got. Is this the right GOT entry though? We can check with readelf again:
+As you can see, 0x2000 is the end of the GOT section, and the start of the .got.plt section. However, we aren't done yet. The next instruction subtracts 0x18 from 0x2000, which gives us 0x1fe8, the start of the .got. Is this the right GOT entry though? We can check with readelf -r again:
 ```
 Relocation section '.rel.dyn' at offset 0x334 contains 9 entries:
  Offset     Info    Type            Sym.Value  Sym. Name
@@ -125,4 +125,25 @@ As expected, base is at 0x200FD0.
 1. We add the offset to the address pointed to by RIP
 2. We dereference the pointer.
 
-#
+# Difference between x86 and x86_64
+The main difference is x86 requires the assistance of a trick to get the value of the EIP (see the "Getting the instruction pointer address" section in the x86 part), while in x64, you can simply offset from the RIP directly.
+
+For example, this is what x86 needs:
+```nasm
+4f3:	e8 19 00 00 00       	call   511 <__x86.get_pc_thunk.ax>
+4f8:	05 08 1b 00 00       	add    $0x1b08,%eax
+4fd:	8b 80 e8 ff ff ff    	mov    -0x18(%eax),%eax
+503:	8b 10                	mov    (%eax),%edx
+
+00000511 <__x86.get_pc_thunk.ax>:
+ 511:	8b 04 24             	mov    (%esp),%eax
+ 514:	c3                   	ret    
+```
+
+While this is what x64 needs:
+```nasm
+69a:	48 8b 05 2f 09 20 00 	mov    0x20092f(%rip),%rax        # 200fd0 <_DYNAMIC+0x190>
+6a1:	8b 10                	mov    (%rax),%edx
+```
+
+Thats it.
