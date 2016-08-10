@@ -1,7 +1,5 @@
-#include <stdio.h>
+int base = 2;
 
-int a = 5325;
-
-int main(int argc, char ** argv) {
-	printf("The value of a + 5 is %d.\n", a + 5);
+int myfunc(int a, int b) {
+    return base + a + b;
 }

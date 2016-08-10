@@ -1,18 +1,12 @@
-CFLAGS += -std=gnu11
+CFLAGS += -std=gnu11 -shared -fPIC
 
-all: test-64 test-32 test-64-pic test-32-pic
+all: test-64.so test-32.so
 
-test-64: test.c
+test-64.so: test.c
 	$(CC) $(CFLAGS) $< -o $@
 
-test-32: test.c
+test-32.so: test.c
 	$(CC) $(CFLAGS) -m32 $< -o $@
 
-test-32-pic: test.c
-	$(CC) $(CFLAGS) -m32 -fPIC $< -o $@
-
-test-64-pic: test.c
-	$(CC) $(CFLAGS) -fPIC $< -o $@
-
 clean:
-	$(RM) test-*
+	$(RM) *.so
