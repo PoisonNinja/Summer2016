@@ -6,7 +6,7 @@ We will first look at how x86 PIC handles global variables. For this, we will be
 
 Before we start, we need to know a couple things. First, x86 does not have the concept of instruction offset addresses. Therefore, x86 uses a trick to get the address of the current address pointer. In assembly, we can see the call:
 ```nasm
-804841a:	e8 38 00 00 00       	call   8048457 <__x86.get_pc_thunk.ax>
+8048464:	e8 d7 fe ff ff       	call   8048340 <__x86.get_pc_thunk.bx>
 ```
 
 The assembly for that is:
@@ -36,6 +36,6 @@ Now that we know how x86 gets the instruction address, we can move into the actu
 8048424:	8b 88 20 00 00 00    	mov    0x20(%eax),%ecx
 804842a:	8d 15 1c a0 04 08    	lea    0x804a01c,%edx
 ```
-Unlike our example above, the code at 0x804841a gets the address into EAX. We then add 0x1be1 to EAX, which contains our instruction pointer address.
+Unlike our example above, the code at 0x804841a gets the address into EAX instead of EBX. We then add 0x1be1 to EAX, which contains our instruction pointer address.
 
 At this point, we must make another detour again. 32-bit uses something known as a Global Offset Table.
