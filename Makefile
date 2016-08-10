@@ -1,4 +1,4 @@
-CFLAGS += -Wall -Wextra -std=gnu11
+CFLAGS += -Wall -Wextra -std=gnu11 -fPIC
 
 test: test.c
 	$(CC) $(CFLAGS) $< -o $@
