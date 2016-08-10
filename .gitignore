@@ -1,2 +1,5 @@
-test
+test-32
+test-32-pic
+test-64
+test-64-pic
 *.so
