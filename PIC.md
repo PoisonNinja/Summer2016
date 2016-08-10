@@ -79,3 +79,50 @@ So, for x86, referencing variables in PIC is relatively easy.
 4. Dereference the entry there to get our final entry
 
 # x86-64
+x86_64 is a little different from x86. We will be using the same source code as before (test.c), but compiled into 64-bit code. The disassembled code can be found in test-64.S.
+
+## PIC
+Once again, we start in myfunc. We can skip the first four instructions, which are just the function prologue. We start at 0x69a.
+
+```
+69a:	48 8b 05 2f 09 20 00 	mov    0x20092f(%rip),%rax        # 200fd0 <_DYNAMIC+0x190>
+```
+
+Here is the instruction that does what took x86 several instructions to do: it adds an offset to the address of the instruction pointer. This is what is different: x86_64 has the capability to use what is known as instruction pointer relative addressing. We can use RIP like any other register (except for writing to it).
+
+0x69a adds 0x20092f to RIP, which as we know from before, brings us somewhere into the .got section. However, as the next instruction indicates, we are already in the correct got entry, since we do not need to subtract or add another offset.
+
+```
+6a1:	8b 10                	mov    (%rax),%edx
+```
+
+This instruction does the same as in x86: It loads the value pointed to by RAX into EDX.
+
+## Checking
+We add 0x20092f to the next instruction, at 0x6a1. That gives us 0x200FD0, which lands us right at the start of the .got section.
+```
+[10] .plt.got          PROGBITS         0000000000000580  00000580
+[19] .got              PROGBITS         0000000000200fd0  00000fd0
+[20] .got.plt          PROGBITS         0000000000201000  00001000
+```
+0x200FD0 is also the address of the GOT entry for base, which we can verify:
+```
+Relocation section '.rela.dyn' at offset 0x470 contains 9 entries:
+  Offset          Info           Type           Sym. Value    Sym. Name + Addend
+000000200e28  000000000008 R_X86_64_RELATIVE                    660
+000000200e30  000000000008 R_X86_64_RELATIVE                    620
+000000201018  000000000008 R_X86_64_RELATIVE                    201018
+000000200fd0  000900000006 R_X86_64_GLOB_DAT 0000000000201020 base + 0
+000000200fd8  000200000006 R_X86_64_GLOB_DAT 0000000000000000 _ITM_deregisterTMClone + 0
+000000200fe0  000300000006 R_X86_64_GLOB_DAT 0000000000000000 __gmon_start__ + 0
+000000200fe8  000400000006 R_X86_64_GLOB_DAT 0000000000000000 _Jv_RegisterClasses + 0
+000000200ff0  000500000006 R_X86_64_GLOB_DAT 0000000000000000 _ITM_registerTMCloneTa + 0
+000000200ff8  000600000006 R_X86_64_GLOB_DAT 0000000000000000 __cxa_finalize@GLIBC_2.2.5 + 0
+```
+As expected, base is at 0x200FD0.
+
+## Summary
+1. We add the offset to the address pointed to by RIP
+2. We dereference the pointer.
+
+#
